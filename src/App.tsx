@@ -1,55 +1,45 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+
 import './App.css'
+import PlayerCard from "./components/PlayerCard.tsx";
+import GameBoard from "./components/GameBoard.tsx";
+
+type PlayerRole = 'Santa_FE' | 'Grinch_BE' | null;
 
 function App() {
-  const [state, setState] = useState({ santa: 50, grinch: 20, cooldown: 0 });
+  const [role, setRole] = useState<PlayerRole>(null);
 
-  const tick = () => {
-    const changeStrength = 2;
-    const eps = 0.0001;  // to avoid division by zero
-    const equilibriumThreshold = 0.1;
-    const eventBoost = 100;
-    const eventCooldownTicks = 30;
-
-    setState(({ santa, grinch, cooldown }) => {
-      const imbalance = (santa - grinch) / (santa + grinch + eps);  // relative imbalance between santa and grinch (always between -1 and 1, 0 means equilibrium)
-      const delta = changeStrength * imbalance;  // change in strength of each player based on imbalance (positive for santa, negative for grinch)
-
-      let newSanta = Math.max(0, santa - delta);
-      let newGrinch = Math.max(0, grinch + delta);
-      let newCooldown = Math.max(0, cooldown - 1);
-
-      const nearEquilibrium = Math.abs(imbalance) < equilibriumThreshold;
-
-      if (nearEquilibrium && newCooldown === 0) {
-        const favorSanta = Math.random() < 0.5;
-
-        if (favorSanta) {
-          const variation = (Math.random() * 2 - 1) * eventBoost;
-          newSanta = Math.max(0, newSanta + variation);
-        } else {
-          const variation = (Math.random() * 2 - 1) * eventBoost;
-          newGrinch = Math.max(0, newGrinch + variation);
-        }
-
-
-        newCooldown = eventCooldownTicks;
-      }
-
-      return { santa: newSanta, grinch: newGrinch, cooldown: newCooldown };
-    });
-  };
-
-  useEffect(() => {
-    const interval = setInterval(tick, 100)
-    return () => clearInterval(interval)
-  }, [])
+  if (!role) {
+    return (
+        <>
+          <div>
+            <PlayerCard
+                title="Santa FE"
+                description="Santa FE is a frontend developer who likes the colorful world of frontend development."
+                style={{
+                  backgroundColor: '#572c29',
+                  color: '#3b0507'
+                }}
+                onSelect={() => setRole('Santa_FE')}
+            />
+            <PlayerCard
+                title="Grinch BE"
+                description="Grinch BE is a backend developer who loves the logic world of backend development."
+                style={{
+                  backgroundColor: '#051f06',
+                  color: '#4d784f'
+                }}
+                onSelect={() => setRole('Grinch_BE')}
+            />
+          </div>
+        </>
+    )
+  }
 
   return (
-    <>
-      <p>SantaFE: {Math.round(state.santa)}</p>
-      <p>GrinchBe: {Math.round(state.grinch)}</p>
-    </>
+      <>
+      <GameBoard />
+      </>
   )
 }
 
